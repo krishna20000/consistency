@@ -1,0 +1,94 @@
+/**
+ * DayFlow Firestore Security Rules
+ *
+ * CORE PHILOSOPHY:
+ * This ruleset implements a strict User-Ownership model. Access to data is gated 
+ * primarily by the document path, ensuring that users can only access their own 
+ * productivity data. This design prioritizes security and performance by 
+ * eliminating the need for complex cross-collection lookups.
+ *
+ * DATA STRUCTURE:
+ * All application data is organized hierarchically under the user's unique 
+ * identifier: `/users/{userId}/tasks/{taskId}`. This structure explicitly 
+ * links every task to a specific owner via the path.
+ *
+ * KEY SECURITY DECISIONS:
+ * 1. Path-Based Authorization: By embedding the `userId` in the document path, 
+ *    we achieve high-performance authorization. The system verifies the 
+ *    `request.auth.uid` against the `{userId}` wildcard in the path.
+ * 2. Strict Write Ownership: Only the owner of a task can create, update, or 
+ *    delete it. There is no concept of shared tasks or public tasks in the 
+ *    current iteration.
+ * 3. Prototyping Flexibility: While authorization is strictly enforced, 
+ *    schema validation is kept minimal (limited to identity and relational 
+ *    integrity) to allow for rapid frontend development and iteration.
+ * 4. Immutable Identity: On updates, any field used to identify the document 
+ *    or its owner is enforced as immutable to prevent data hijacking.
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper Functions ---
+
+    /**
+     * @description Checks if the request is made by an authenticated user.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Validates that the authenticated user matches the provided userId.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Combines ownership check with a check that the resource exists.
+     * Used for update and delete operations to ensure destructive actions are valid.
+     */
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    // --- Collection Rules ---
+
+    /**
+     * @description User profile documents.
+     * @path /users/{userId}
+     * @allow (create) if the user's UID matches the document ID.
+     * @deny (create) if a user tries to create a document for a different UID.
+     * @principle Implements Self-Creation and Ownership for the user's root document.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Users should not be listable for privacy.
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Individual productivity tasks for a specific user.
+       * @path /users/{userId}/tasks/{taskId}
+       * @allow (list) if the user is the owner of the parent user path.
+       * @deny (update) if the task does not exist or the user is not the owner.
+       * @principle Uses path-based ownership to secure a subcollection.
+       */
+      match /tasks/{taskId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        
+        // On create, we ensure the internal ID matches the path ID for relational integrity.
+        allow create: if isOwner(userId) && request.resource.data.id == taskId;
+        
+        // On update, we ensure the resource exists and the internal ID remains immutable.
+        allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+        
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+  }
+}
