@@ -29,7 +29,6 @@ export function useDayFlow() {
         const currentToday = toLocalISO(new Date());
         
         const updatedTasks = parsedTasks.map(task => {
-          // Carry forward active tasks that were due before today
           if (task.status === 'active' && task.dueDate < currentToday) {
             return {
               ...task,
@@ -65,7 +64,7 @@ export function useDayFlow() {
       dueDate: toLocalISO(tomorrow),
       status: 'active',
       forwardedCount: 0,
-      createdAt: new Date().toISOString(), // Full ISO for sorting/history
+      createdAt: new Date().toISOString(),
     };
     setTasks(prev => [newTask, ...prev]);
   }, [toLocalISO]);
@@ -83,7 +82,6 @@ export function useDayFlow() {
   const forwardTask = useCallback((id: string) => {
     setTasks(prev => prev.map(t => {
       if (t.id === id) {
-        // Parse current due date and add 1 day
         const [y, m, d] = t.dueDate.split('-').map(Number);
         const currentDueDate = new Date(y, m - 1, d);
         currentDueDate.setDate(currentDueDate.getDate() + 1);
@@ -105,13 +103,11 @@ export function useDayFlow() {
   const stats = useMemo((): DayFlowStats => {
     const currentTodayStr = toLocalISO(new Date());
 
-    // Completed today: Actually clicked "done" today
     const todayCompleted = tasks.filter(t => {
       if (t.status !== 'completed' || !t.completedAt) return false;
       return toLocalISO(new Date(t.completedAt)) === currentTodayStr;
     }).length;
 
-    // Pending today: Active tasks due today OR created today (planning)
     const todayPending = tasks.filter(t => {
       if (t.status !== 'active') return false;
       const createdToday = toLocalISO(new Date(t.createdAt)) === currentTodayStr;
@@ -128,6 +124,39 @@ export function useDayFlow() {
     const percentage = todayTotal > 0 ? Math.round((todayCompleted / todayTotal) * 100) : 0;
     const overallPercentage = overallTotal > 0 ? Math.round((overallCompleted / overallTotal) * 100) : 0;
 
+    // Calculate Streak
+    const completedDates = Array.from(new Set(
+      tasks
+        .filter(t => t.status === 'completed' && t.completedAt)
+        .map(t => toLocalISO(new Date(t.completedAt!)))
+    )).sort((a, b) => b.localeCompare(a));
+
+    let streak = 0;
+    if (completedDates.length > 0) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = toLocalISO(yesterday);
+
+      const hasActivityToday = completedDates[0] === currentTodayStr;
+      const hasActivityYesterday = completedDates.includes(yesterdayStr);
+
+      if (hasActivityToday || hasActivityYesterday) {
+        streak = 1;
+        let checkDate = new Date(hasActivityToday ? new Date() : yesterday);
+        
+        // Walk backwards
+        while (true) {
+          checkDate.setDate(checkDate.getDate() - 1);
+          const checkDateStr = toLocalISO(checkDate);
+          if (completedDates.includes(checkDateStr)) {
+            streak++;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+
     return { 
       todayTotal, 
       todayCompleted, 
@@ -136,7 +165,8 @@ export function useDayFlow() {
       overallPending, 
       overallTotal,
       percentage,
-      overallPercentage
+      overallPercentage,
+      streak
     };
   }, [tasks, toLocalISO]);
 

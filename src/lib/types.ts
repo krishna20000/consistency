@@ -19,4 +19,5 @@ export interface DayFlowStats {
   overallTotal: number;
   percentage: number;
   overallPercentage: number;
+  streak: number;
 }

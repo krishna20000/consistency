@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { DayFlowStats } from '@/lib/types';
-import { ClipboardList, CheckSquare, Clock, LayoutGrid, History, Zap, BarChart3 } from 'lucide-react';
+import { ClipboardList, CheckSquare, Clock, LayoutGrid, History, Zap, BarChart3, Flame } from 'lucide-react';
 
 interface DashboardProps {
   stats: DayFlowStats;
@@ -76,6 +76,25 @@ export function Dashboard({ stats }: DashboardProps) {
           </CardContent>
         </Card>
       </div>
+
+      {stats.streak > 0 && (
+        <Card className="bg-orange-500/10 border-orange-500/20 overflow-hidden relative group">
+          <div className="absolute top-0 right-0 p-4 text-orange-500/10 group-hover:text-orange-500/20 transition-colors">
+            <Flame size={80} className="animate-pulse" />
+          </div>
+          <CardContent className="p-8 flex items-center gap-6">
+            <div className="bg-orange-500 rounded-full p-4 shadow-[0_0_20px_rgba(249,115,22,0.4)]">
+              <Flame size={32} className="text-white fill-current" />
+            </div>
+            <div>
+              <p className="text-orange-500 text-[10px] uppercase tracking-[0.2em] font-black mb-1">Consistency Streak</p>
+              <h2 className="text-5xl font-black text-foreground tracking-tighter">
+                {stats.streak} <span className="text-xl font-bold text-muted-foreground uppercase ml-1">Days</span>
+              </h2>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="space-y-6">
         <div className="bg-card/30 rounded-xl p-6 border border-white/5">
