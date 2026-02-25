@@ -134,6 +134,7 @@ export function useDayFlow() {
       todayPending, 
       overallCompleted, 
       overallPending, 
+      overallTotal,
       percentage,
       overallPercentage
     };
