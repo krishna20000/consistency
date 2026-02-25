@@ -1,6 +1,7 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { AppNav } from '@/components/AppNav';
+import { HeaderDate } from '@/components/HeaderDate';
 import { LayoutGrid } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -30,20 +31,14 @@ export default function RootLayout({
                   Consistency<span className="text-primary">Lab</span>
                 </h1>
               </div>
-              <p className="text-muted-foreground font-medium text-sm">
-                {new Date().toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
-              </p>
+              <HeaderDate />
             </div>
             <AppNav />
           </header>
           {children}
           <footer className="pt-12 border-t border-white/5 text-center">
             <p className="text-xs text-muted-foreground/40 font-mono tracking-widest uppercase">
-              &copy; {new Date().getFullYear()} Consistency Lab // Focused Productivity
+              Consistency Lab // Focused Productivity
             </p>
           </footer>
         </div>
