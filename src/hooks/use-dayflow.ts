@@ -1,32 +1,39 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Task, TaskStatus } from '@/lib/types';
 
-const STORAGE_KEY = 'dayflow_tasks';
+const STORAGE_KEY = 'dayflow_tasks_v1';
 
 export function useDayFlow() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [initialized, setInitialized] = useState(false);
 
-  // Get today's date in YYYY-MM-DD format
+  // Get today's date in YYYY-MM-DD format (Local Time)
   const getTodayString = useCallback(() => {
-    return new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }, []);
+
+  const todayString = useMemo(() => getTodayString(), [getTodayString]);
 
   // Initialize and check for "new day" logic
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
         const parsedTasks: Task[] = JSON.parse(stored);
-        const todayStr = getTodayString();
+        const currentToday = getTodayString();
         
-        // Process daily logic: carry forward pending tasks to today
+        // Process daily logic: carry forward pending tasks from previous days to today
         const updatedTasks = parsedTasks.map(task => {
-          if (task.status === 'active' && task.dueDate < todayStr) {
-            // This task was missed from a previous day
+          if (task.status === 'active' && task.dueDate < currentToday) {
             return {
               ...task,
-              dueDate: todayStr,
+              dueDate: currentToday,
               forwardedCount: task.forwardedCount + 1
             };
           }
@@ -44,21 +51,22 @@ export function useDayFlow() {
 
   // Save to localStorage whenever tasks change
   useEffect(() => {
-    if (initialized) {
+    if (initialized && typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
     }
   }, [tasks, initialized]);
 
   const addTask = useCallback((title: string) => {
+    const currentToday = getTodayString();
     const newTask: Task = {
-      id: crypto.randomUUID(),
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title,
-      dueDate: getTodayString(),
+      dueDate: currentToday,
       status: 'active',
       forwardedCount: 0,
       createdAt: new Date().toISOString(),
     };
-    setTasks(prev => [...prev, newTask]);
+    setTasks(prev => [newTask, ...prev]);
   }, [getTodayString]);
 
   const completeTask = useCallback((id: string) => {
@@ -74,7 +82,11 @@ export function useDayFlow() {
   const forwardTask = useCallback((id: string) => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    const tomorrowStr = `${year}-${month}-${day}`;
 
     setTasks(prev => prev.map(t => 
       t.id === id ? { 
@@ -90,8 +102,8 @@ export function useDayFlow() {
   }, []);
 
   const stats = useMemo(() => {
-    const todayStr = getTodayString();
-    const todayTasks = tasks.filter(t => t.dueDate === todayStr);
+    const currentToday = getTodayString();
+    const todayTasks = tasks.filter(t => t.dueDate === currentToday);
     const total = todayTasks.length;
     const completed = todayTasks.filter(t => t.status === 'completed').length;
     const pending = total - completed;
@@ -107,7 +119,7 @@ export function useDayFlow() {
     forwardTask,
     deleteTask,
     stats,
-    todayString: getTodayString(),
+    todayString,
     initialized
   };
 }

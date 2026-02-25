@@ -6,7 +6,7 @@ import { TaskForm } from '@/components/TaskForm';
 import { TaskCard } from '@/components/TaskCard';
 import { TaskSection } from '@/components/TaskSection';
 import { useDayFlow } from '@/hooks/use-dayflow';
-import { CheckCircle2, ListTodo, History, LayoutGrid } from 'lucide-react';
+import { CheckCircle2, ListTodo, History, LayoutGrid, Loader2 } from 'lucide-react';
 
 export default function Home() {
   const { 
@@ -22,8 +22,9 @@ export default function Home() {
 
   if (!initialized) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-pulse text-primary font-bold tracking-widest uppercase">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <Loader2 className="animate-spin text-primary" size={32} />
+        <div className="text-primary font-bold tracking-widest uppercase text-sm">
           Loading DayFlow...
         </div>
       </div>
