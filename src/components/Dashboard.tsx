@@ -67,7 +67,7 @@ export function Dashboard({ stats }: DashboardProps) {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="space-y-6">
         <div className="bg-card/30 rounded-xl p-6 border border-white/5">
           <div className="flex justify-between items-end mb-4">
             <div className="flex items-center gap-2">
