@@ -6,7 +6,7 @@ import { TaskForm } from '@/components/TaskForm';
 import { TaskCard } from '@/components/TaskCard';
 import { TaskSection } from '@/components/TaskSection';
 import { useDayFlow } from '@/hooks/use-dayflow';
-import { CheckCircle2, ListTodo, History, LayoutGrid, Loader2 } from 'lucide-react';
+import { CheckCircle2, ListTodo, LayoutGrid, Loader2 } from 'lucide-react';
 
 export default function Home() {
   const { 
@@ -31,9 +31,9 @@ export default function Home() {
     );
   }
 
-  const activeTodayTasks = tasks.filter(t => t.dueDate === todayString && t.status === 'active');
-  const completedTodayTasks = tasks.filter(t => t.dueDate === todayString && t.status === 'completed');
-  const futureTasks = tasks.filter(t => t.dueDate > todayString);
+  // Filter tasks into two main categories as requested
+  const inProgressTasks = tasks.filter(t => t.status === 'active');
+  const completedTasks = tasks.filter(t => t.status === 'completed');
 
   return (
     <main className="max-w-4xl mx-auto px-6 py-12 space-y-10">
@@ -62,59 +62,55 @@ export default function Home() {
       <Dashboard stats={stats} />
 
       <section className="space-y-4">
-        <h2 className="text-lg font-bold">Manage Focus</h2>
+        <h2 className="text-lg font-bold">New Goal</h2>
         <TaskForm onAdd={addTask} />
+        <p className="text-[10px] text-muted-foreground uppercase tracking-widest ml-1">
+          Note: New tasks are scheduled for tomorrow by default
+        </p>
       </section>
 
       <div className="space-y-12">
         <TaskSection 
-          title="Today's Tasks" 
+          title="In Progress" 
           icon={ListTodo} 
-          count={activeTodayTasks.length}
+          count={inProgressTasks.length}
         >
-          {activeTodayTasks.length > 0 ? (
-            activeTodayTasks.map(task => (
+          {inProgressTasks.length > 0 ? (
+            inProgressTasks.map(task => (
               <TaskCard 
                 key={task.id} 
                 task={task} 
                 onComplete={completeTask} 
                 onForward={forwardTask} 
                 onDelete={deleteTask}
+                isToday={task.dueDate === todayString}
               />
             ))
           ) : (
             <div className="text-center py-12 border-2 border-dashed border-white/5 rounded-xl">
-              <p className="text-muted-foreground italic">No active tasks for today. Add one above!</p>
+              <p className="text-muted-foreground italic">No active tasks. Time to plan ahead!</p>
             </div>
           )}
         </TaskSection>
 
         <TaskSection 
-          title="Completed Today" 
+          title="Completed" 
           icon={CheckCircle2} 
-          count={completedTodayTasks.length}
+          count={completedTasks.length}
         >
-          {completedTodayTasks.map(task => (
-            <TaskCard 
-              key={task.id} 
-              task={task} 
-              onDelete={deleteTask}
-            />
-          ))}
-        </TaskSection>
-
-        <TaskSection 
-          title="Scheduled Tasks" 
-          icon={History} 
-          count={futureTasks.length}
-        >
-          {futureTasks.map(task => (
-            <TaskCard 
-              key={task.id} 
-              task={task} 
-              onDelete={deleteTask}
-            />
-          ))}
+          {completedTasks.length > 0 ? (
+            completedTasks.map(task => (
+              <TaskCard 
+                key={task.id} 
+                task={task} 
+                onDelete={deleteTask}
+              />
+            ))
+          ) : (
+            <div className="text-center py-8 opacity-40">
+              <p className="text-xs uppercase tracking-widest">Nothing finished yet</p>
+            </div>
+          )}
         </TaskSection>
       </div>
 

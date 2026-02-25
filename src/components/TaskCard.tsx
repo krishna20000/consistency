@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Task } from '@/lib/types';
-import { Check, ArrowRight, Forward, Trash2 } from 'lucide-react';
+import { Check, ArrowRight, Forward, Trash2, CalendarDays } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TaskCardProps {
@@ -12,42 +12,69 @@ interface TaskCardProps {
   onComplete?: (id: string) => void;
   onForward?: (id: string) => void;
   onDelete: (id: string) => void;
+  isToday?: boolean;
 }
 
-export function TaskCard({ task, onComplete, onForward, onDelete }: TaskCardProps) {
+export function TaskCard({ task, onComplete, onForward, onDelete, isToday }: TaskCardProps) {
   const isCompleted = task.status === 'completed';
+  
   const formatTime = (isoString?: string) => {
     if (!isoString) return '';
     return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const formatDate = (isoString: string) => {
+    return new Date(isoString).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
   return (
     <Card className={cn(
       "group bg-card/40 border-white/5 transition-all duration-300 hover:bg-card/60",
-      isCompleted && "opacity-75 border-accent/20"
+      isCompleted && "opacity-75 border-accent/20",
+      isToday && !isCompleted && "border-primary/20 glow-primary"
     )}>
       <CardContent className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex-1 space-y-1">
-          <h4 className={cn(
-            "text-lg font-medium tracking-tight break-words",
-            isCompleted && "line-through text-muted-foreground"
-          )}>
-            {task.title}
-          </h4>
+        <div className="flex-1 space-y-1.5">
+          <div className="flex items-center gap-2">
+            <h4 className={cn(
+              "text-lg font-medium tracking-tight break-words",
+              isCompleted && "line-through text-muted-foreground"
+            )}>
+              {task.title}
+            </h4>
+            {isToday && !isCompleted && (
+              <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">
+                Today
+              </span>
+            )}
+          </div>
           
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-4 text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
+            <span className="flex items-center gap-1">
+              <CalendarDays size={12} className="text-muted-foreground/50" />
+              Created {formatDate(task.createdAt)}
+            </span>
+
             {isCompleted ? (
               <span className="flex items-center gap-1 text-accent">
                 <Check size={12} />
                 Completed at {formatTime(task.completedAt)}
               </span>
             ) : (
-              task.forwardedCount > 0 && (
-                <span className="flex items-center gap-1 text-primary/70 bg-primary/10 px-2 py-0.5 rounded-full">
-                  <Forward size={12} />
-                  Forwarded {task.forwardedCount} {task.forwardedCount === 1 ? 'time' : 'times'}
+              <>
+                <span className="flex items-center gap-1">
+                  Due {task.dueDate === new Date().toISOString().split('T')[0] ? 'Today' : task.dueDate}
                 </span>
-              )
+                {task.forwardedCount > 0 && (
+                  <span className="flex items-center gap-1 text-primary/70">
+                    <Forward size={12} />
+                    Forwarded {task.forwardedCount}x
+                  </span>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -58,20 +85,20 @@ export function TaskCard({ task, onComplete, onForward, onDelete }: TaskCardProp
               <Button 
                 size="sm" 
                 variant="outline" 
-                className="border-accent/30 text-accent hover:bg-accent hover:text-accent-foreground gap-1.5"
+                className="border-accent/30 text-accent hover:bg-accent hover:text-accent-foreground gap-1.5 h-8"
                 onClick={() => onComplete?.(task.id)}
               >
-                <Check size={16} />
+                <Check size={14} />
                 Done
               </Button>
               <Button 
                 size="sm" 
                 variant="ghost" 
-                className="text-muted-foreground hover:text-foreground gap-1.5"
+                className="text-muted-foreground hover:text-foreground gap-1.5 h-8"
                 onClick={() => onForward?.(task.id)}
               >
-                <ArrowRight size={16} />
-                Tomorrow
+                <ArrowRight size={14} />
+                +1 Day
               </Button>
             </>
           )}
@@ -81,7 +108,7 @@ export function TaskCard({ task, onComplete, onForward, onDelete }: TaskCardProp
             className="text-muted-foreground hover:text-destructive transition-colors h-8 w-8"
             onClick={() => onDelete(task.id)}
           >
-            <Trash2 size={16} />
+            <Trash2 size={14} />
           </Button>
         </div>
       </CardContent>

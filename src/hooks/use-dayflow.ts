@@ -16,6 +16,15 @@ export function useDayFlow() {
     return `${year}-${month}-${day}`;
   }, []);
 
+  const getTomorrowString = useCallback(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, []);
+
   const todayString = useMemo(() => getTodayString(), [getTodayString]);
 
   // Initialize and check for "new day" logic
@@ -57,17 +66,18 @@ export function useDayFlow() {
   }, [tasks, initialized]);
 
   const addTask = useCallback((title: string) => {
-    const currentToday = getTodayString();
+    // Defaulting to tomorrow as requested
+    const tomorrowStr = getTomorrowString();
     const newTask: Task = {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title,
-      dueDate: currentToday,
+      dueDate: tomorrowStr,
       status: 'active',
       forwardedCount: 0,
       createdAt: new Date().toISOString(),
     };
     setTasks(prev => [newTask, ...prev]);
-  }, [getTodayString]);
+  }, [getTomorrowString]);
 
   const completeTask = useCallback((id: string) => {
     setTasks(prev => prev.map(t => 
@@ -80,21 +90,23 @@ export function useDayFlow() {
   }, []);
 
   const forwardTask = useCallback((id: string) => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const year = tomorrow.getFullYear();
-    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-    const day = String(tomorrow.getDate()).padStart(2, '0');
-    const tomorrowStr = `${year}-${month}-${day}`;
+    setTasks(prev => prev.map(t => {
+      if (t.id === id) {
+        const currentDueDate = new Date(t.dueDate);
+        currentDueDate.setDate(currentDueDate.getDate() + 1);
+        const year = currentDueDate.getFullYear();
+        const month = String(currentDueDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDueDate.getDate()).padStart(2, '0');
+        const newDateStr = `${year}-${month}-${day}`;
 
-    setTasks(prev => prev.map(t => 
-      t.id === id ? { 
-        ...t, 
-        dueDate: tomorrowStr, 
-        forwardedCount: t.forwardedCount + 1 
-      } : t
-    ));
+        return { 
+          ...t, 
+          dueDate: newDateStr, 
+          forwardedCount: t.forwardedCount + 1 
+        };
+      }
+      return t;
+    }));
   }, []);
 
   const deleteTask = useCallback((id: string) => {
@@ -102,15 +114,13 @@ export function useDayFlow() {
   }, []);
 
   const stats = useMemo(() => {
-    const currentToday = getTodayString();
-    const todayTasks = tasks.filter(t => t.dueDate === currentToday);
-    const total = todayTasks.length;
-    const completed = todayTasks.filter(t => t.status === 'completed').length;
+    const total = tasks.length;
+    const completed = tasks.filter(t => t.status === 'completed').length;
     const pending = total - completed;
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
     return { total, completed, pending, percentage };
-  }, [tasks, getTodayString]);
+  }, [tasks]);
 
   return {
     tasks,
