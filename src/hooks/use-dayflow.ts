@@ -119,10 +119,10 @@ export function useDayFlow() {
       t.completedAt?.startsWith(todayString)
     ).length;
 
-    // Today's pending tasks are active tasks due today or in the past (carried forward)
+    // Today's pending tasks are active tasks due today OR tasks created today (planning ahead)
     const todayPending = tasks.filter(t => 
       t.status === 'active' && 
-      t.dueDate <= todayString
+      (t.dueDate <= todayString || t.createdAt.startsWith(todayString))
     ).length;
 
     const todayTotal = todayCompleted + todayPending;

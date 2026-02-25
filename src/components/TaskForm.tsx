@@ -26,7 +26,7 @@ export function TaskForm({ onAdd }: TaskFormProps) {
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Add a task for today..."
+          placeholder="Plan a task for tomorrow..."
           className="bg-card/50 border-white/10 h-12 focus:border-primary/50 transition-colors pr-10"
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/30 pointer-events-none group-focus-within:text-primary/50 transition-colors">
