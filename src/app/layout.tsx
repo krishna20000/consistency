@@ -4,7 +4,7 @@ import { AppNav } from '@/components/AppNav';
 import { LayoutGrid } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'DayFlow | Minimal Productivity Tracker',
+  title: 'Consistency Lab | Minimal Productivity Tracker',
   description: 'A modern, dark-themed daily task tracker designed for focus and clarity.',
 };
 
@@ -27,7 +27,7 @@ export default function RootLayout({
               <div className="flex items-center gap-2 mb-2">
                 <LayoutGrid className="text-accent" size={24} />
                 <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">
-                  Day<span className="text-primary">Flow</span>
+                  Consistency<span className="text-primary">Lab</span>
                 </h1>
               </div>
               <p className="text-muted-foreground font-medium text-sm">
@@ -43,7 +43,7 @@ export default function RootLayout({
           {children}
           <footer className="pt-12 border-t border-white/5 text-center">
             <p className="text-xs text-muted-foreground/40 font-mono tracking-widest uppercase">
-              &copy; {new Date().getFullYear()} DayFlow // Focused Productivity
+              &copy; {new Date().getFullYear()} Consistency Lab // Focused Productivity
             </p>
           </footer>
         </div>

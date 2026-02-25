@@ -4,7 +4,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Task",
       "type": "object",
-      "description": "Represents a single daily productivity task with its status and progression within the DayFlow application.",
+      "description": "Represents a single daily productivity task with its status and progression within the Consistency Lab application.",
       "properties": {
         "id": {
           "type": "string",
@@ -63,7 +63,7 @@
           "schema": {
             "$ref": "#/backend/entities/Task"
           },
-          "description": "Stores individual productivity tasks for a specific user. The 'userId' in the path explicitly defines ownership, ensuring authorization independence for security rules (e.g., `request.auth.uid == userId`). This structure facilitates secure list operations (QAPs) by allowing direct ownership checks on the path. Each document contains the full task details including state, timestamps, and forwarded count.",
+          "description": "Stores individual productivity tasks for a specific user within Consistency Lab.",
           "params": [
             {
               "name": "userId",
@@ -76,7 +76,6 @@
           ]
         }
       }
-    ],
-    "reasoning": "The application's current requirements specify 'No backend', 'No external database', and 'Use localStorage for saving data'. This means a Firestore structure is not strictly necessary for the application as described. However, if the application were to migrate to Firebase Firestore in the future, the following structure would be highly recommended, adhering to the core design principles.\n\nThe primary entity is 'Task', which is inherently user-specific. Therefore, a path-based ownership model is adopted. All tasks for a given user will be stored under their unique user ID:\n\n`/users/{userId}/tasks/{taskId}`\n\nThis structure achieves **Authorization Independence** by ensuring that the owner's identity (`userId`) is part of the document path itself. Security rules for tasks would simply compare `request.auth.uid` to the `{userId}` wildcard in the path. This eliminates any need for `get()` calls to parent documents to determine ownership or permissions, enabling atomic operations and simplifying rule logic. For example, a rule `allow read, write: if request.auth.uid == userId;` is straightforward and performant.\n\nThis design also effectively supports **QAPs (Rules are not Filters)**. When a user requests their tasks (e.g., a list operation on `/users/{userId}/tasks`), the security rules can directly enforce that `request.auth.uid` matches `userId`. This ensures that a user can only query their own tasks, preventing unintentional data exposure or the need for expensive post-query filtering in client-side code, which is prone to errors and security vulnerabilities. Each `Task` document includes its state (`isCompleted`, `dueDate`, `forwardedCount`), allowing all necessary logic to be performed directly on the document without external lookups for authorization.\n\n**Structural Segregation** is maintained as all documents within `/users/{userId}/tasks` share the same security posture – they are private to the `userId`. The `Task` entity's fields such as `dueDate` and `isCompleted` explicitly model the task's state, aligning with **Data Clarity and Predictability**."
+    ]
   }
 }
