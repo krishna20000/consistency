@@ -6,9 +6,9 @@ import { TaskForm } from '@/components/TaskForm';
 import { TaskCard } from '@/components/TaskCard';
 import { TaskSection } from '@/components/TaskSection';
 import { useDayFlow } from '@/hooks/use-dayflow';
-import { CheckCircle2, ListTodo, LayoutGrid, Loader2 } from 'lucide-react';
+import { ListTodo, Loader2 } from 'lucide-react';
 
-export default function Home() {
+export default function InProgressPage() {
   const { 
     tasks, 
     addTask, 
@@ -16,109 +16,56 @@ export default function Home() {
     forwardTask, 
     deleteTask, 
     stats, 
-    todayString, 
     initialized 
   } = useDayFlow();
 
   if (!initialized) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 className="animate-spin text-primary" size={32} />
         <div className="text-primary font-bold tracking-widest uppercase text-sm">
-          Loading DayFlow...
+          Syncing Tasks...
         </div>
       </div>
     );
   }
 
-  // Filter tasks into two main categories as requested
   const inProgressTasks = tasks.filter(t => t.status === 'active');
-  const completedTasks = tasks.filter(t => t.status === 'completed');
 
   return (
-    <main className="max-w-4xl mx-auto px-6 py-12 space-y-10">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <LayoutGrid className="text-accent" size={24} />
-            <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">
-              Day<span className="text-primary">Flow</span>
-            </h1>
-          </div>
-          <p className="text-muted-foreground font-medium">
-            {new Date().toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
-        </div>
-        <div className="text-xs text-muted-foreground bg-white/5 px-3 py-1.5 rounded-md border border-white/5 uppercase tracking-tighter">
-          Personal Workspace
-        </div>
-      </header>
-
+    <div className="space-y-10">
       <Dashboard stats={stats} />
 
       <section className="space-y-4">
         <h2 className="text-lg font-bold">New Goal</h2>
         <TaskForm onAdd={addTask} />
         <p className="text-[10px] text-muted-foreground uppercase tracking-widest ml-1">
-          Note: New tasks are scheduled for tomorrow by default
+          Note: Tasks are automatically scheduled for tomorrow
         </p>
       </section>
 
-      <div className="space-y-12">
-        <TaskSection 
-          title="In Progress" 
-          icon={ListTodo} 
-          count={inProgressTasks.length}
-        >
-          {inProgressTasks.length > 0 ? (
-            inProgressTasks.map(task => (
-              <TaskCard 
-                key={task.id} 
-                task={task} 
-                onComplete={completeTask} 
-                onForward={forwardTask} 
-                onDelete={deleteTask}
-                isToday={task.dueDate === todayString}
-              />
-            ))
-          ) : (
-            <div className="text-center py-12 border-2 border-dashed border-white/5 rounded-xl">
-              <p className="text-muted-foreground italic">No active tasks. Time to plan ahead!</p>
-            </div>
-          )}
-        </TaskSection>
-
-        <TaskSection 
-          title="Completed" 
-          icon={CheckCircle2} 
-          count={completedTasks.length}
-        >
-          {completedTasks.length > 0 ? (
-            completedTasks.map(task => (
-              <TaskCard 
-                key={task.id} 
-                task={task} 
-                onDelete={deleteTask}
-              />
-            ))
-          ) : (
-            <div className="text-center py-8 opacity-40">
-              <p className="text-xs uppercase tracking-widest">Nothing finished yet</p>
-            </div>
-          )}
-        </TaskSection>
-      </div>
-
-      <footer className="pt-12 border-t border-white/5 text-center">
-        <p className="text-xs text-muted-foreground/40 font-mono tracking-widest uppercase">
-          &copy; {new Date().getFullYear()} DayFlow // Focused Productivity
-        </p>
-      </footer>
-    </main>
+      <TaskSection 
+        title="Active Tasks" 
+        icon={ListTodo} 
+        count={inProgressTasks.length}
+      >
+        {inProgressTasks.length > 0 ? (
+          inProgressTasks.map(task => (
+            <TaskCard 
+              key={task.id} 
+              task={task} 
+              onComplete={completeTask} 
+              onForward={forwardTask} 
+              onDelete={deleteTask}
+              showDueDate={false}
+            />
+          ))
+        ) : (
+          <div className="text-center py-12 border-2 border-dashed border-white/5 rounded-xl bg-white/5">
+            <p className="text-muted-foreground italic">No active tasks. Time to plan ahead!</p>
+          </div>
+        )}
+      </TaskSection>
+    </div>
   );
 }

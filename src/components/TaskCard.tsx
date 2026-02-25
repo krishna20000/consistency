@@ -13,9 +13,10 @@ interface TaskCardProps {
   onForward?: (id: string) => void;
   onDelete: (id: string) => void;
   isToday?: boolean;
+  showDueDate?: boolean;
 }
 
-export function TaskCard({ task, onComplete, onForward, onDelete, isToday }: TaskCardProps) {
+export function TaskCard({ task, onComplete, onForward, onDelete, isToday, showDueDate = true }: TaskCardProps) {
   const isCompleted = task.status === 'completed';
   
   const formatTime = (isoString?: string) => {
@@ -45,7 +46,7 @@ export function TaskCard({ task, onComplete, onForward, onDelete, isToday }: Tas
             )}>
               {task.title}
             </h4>
-            {isToday && !isCompleted && (
+            {isToday && !isCompleted && showDueDate && (
               <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">
                 Today
               </span>
@@ -65,9 +66,11 @@ export function TaskCard({ task, onComplete, onForward, onDelete, isToday }: Tas
               </span>
             ) : (
               <>
-                <span className="flex items-center gap-1">
-                  Due {task.dueDate === new Date().toISOString().split('T')[0] ? 'Today' : task.dueDate}
-                </span>
+                {showDueDate && (
+                  <span className="flex items-center gap-1">
+                    Due {task.dueDate === new Date().toISOString().split('T')[0] ? 'Today' : task.dueDate}
+                  </span>
+                )}
                 {task.forwardedCount > 0 && (
                   <span className="flex items-center gap-1 text-primary/70">
                     <Forward size={12} />
