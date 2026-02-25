@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Task, TaskStatus } from '@/lib/types';
+import { Task, DayFlowStats } from '@/lib/types';
 
 const STORAGE_KEY = 'dayflow_tasks_v1';
 
@@ -113,14 +113,26 @@ export function useDayFlow() {
     setTasks(prev => prev.filter(t => t.id !== id));
   }, []);
 
-  const stats = useMemo(() => {
-    const total = tasks.length;
-    const completed = tasks.filter(t => t.status === 'completed').length;
-    const pending = total - completed;
-    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+  const stats = useMemo((): DayFlowStats => {
+    const todayTasks = tasks.filter(t => t.dueDate === todayString);
+    const todayCompleted = todayTasks.filter(t => t.status === 'completed').length;
+    const todayTotal = todayTasks.length;
+    const todayPending = todayTotal - todayCompleted;
 
-    return { total, completed, pending, percentage };
-  }, [tasks]);
+    const overallCompleted = tasks.filter(t => t.status === 'completed').length;
+    const overallPending = tasks.filter(t => t.status === 'active').length;
+    
+    const percentage = todayTotal > 0 ? Math.round((todayCompleted / todayTotal) * 100) : 0;
+
+    return { 
+      todayTotal, 
+      todayCompleted, 
+      todayPending, 
+      overallCompleted, 
+      overallPending, 
+      percentage 
+    };
+  }, [tasks, todayString]);
 
   return {
     tasks,

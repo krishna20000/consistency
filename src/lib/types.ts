@@ -11,8 +11,10 @@ export interface Task {
 }
 
 export interface DayFlowStats {
-  total: number;
-  completed: number;
-  pending: number;
+  todayTotal: number;
+  todayCompleted: number;
+  todayPending: number;
+  overallCompleted: number;
+  overallPending: number;
   percentage: number;
 }
