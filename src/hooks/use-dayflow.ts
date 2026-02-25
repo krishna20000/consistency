@@ -113,10 +113,19 @@ export function useDayFlow() {
   }, []);
 
   const stats = useMemo((): DayFlowStats => {
-    const todayTasks = tasks.filter(t => t.dueDate === todayString);
-    const todayCompleted = todayTasks.filter(t => t.status === 'completed').length;
-    const todayTotal = todayTasks.length;
-    const todayPending = todayTotal - todayCompleted;
+    // Today's completed tasks are those with a completion timestamp matching today
+    const todayCompleted = tasks.filter(t => 
+      t.status === 'completed' && 
+      t.completedAt?.startsWith(todayString)
+    ).length;
+
+    // Today's pending tasks are active tasks due today or in the past (carried forward)
+    const todayPending = tasks.filter(t => 
+      t.status === 'active' && 
+      t.dueDate <= todayString
+    ).length;
+
+    const todayTotal = todayCompleted + todayPending;
 
     const overallCompleted = tasks.filter(t => t.status === 'completed').length;
     const overallPending = tasks.filter(t => t.status === 'active').length;
