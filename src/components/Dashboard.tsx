@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { DayFlowStats } from '@/lib/types';
-import { ClipboardList, CheckSquare, Clock, LayoutGrid, History } from 'lucide-react';
+import { ClipboardList, CheckSquare, Clock, LayoutGrid, History, Zap } from 'lucide-react';
 
 interface DashboardProps {
   stats: DayFlowStats;
@@ -67,23 +67,36 @@ export function Dashboard({ stats }: DashboardProps) {
         </Card>
       </div>
 
-      <div className="bg-card/30 rounded-xl p-6 border border-white/5">
-        <div className="flex justify-between items-end mb-4">
-          <div>
-            <h3 className="text-lg font-semibold mb-1">Today's Momentum</h3>
-            <p className="text-muted-foreground text-sm">Focus on what's due today.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-card/30 rounded-xl p-6 border border-white/5">
+          <div className="flex justify-between items-end mb-4">
+            <div className="flex items-center gap-2">
+              <Zap className="text-primary" size={18} />
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest">Today's Momentum</h3>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Success rate for today</p>
+              </div>
+            </div>
+            <span className="text-2xl font-bold text-primary">{stats.percentage}%</span>
           </div>
-          <span className="text-2xl font-bold text-accent">{stats.percentage}%</span>
+          <div className="relative">
+            <Progress value={stats.percentage} className="h-4 bg-secondary/30 rounded-full" />
+          </div>
         </div>
-        <div className="relative">
-          <Progress value={stats.percentage} className="h-6 bg-secondary/50 rounded-full" />
-          <div 
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
-            style={{ display: stats.percentage > 5 ? 'flex' : 'none' }}
-          >
-            <span className="text-[10px] font-bold text-primary-foreground drop-shadow-sm uppercase tracking-widest">
-              Daily Success Rate
-            </span>
+
+        <div className="bg-card/30 rounded-xl p-6 border border-white/5">
+          <div className="flex justify-between items-end mb-4">
+            <div className="flex items-center gap-2">
+              <History className="text-accent" size={18} />
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest">Total Momentum</h3>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">All-time success rate</p>
+              </div>
+            </div>
+            <span className="text-2xl font-bold text-accent">{stats.overallPercentage}%</span>
+          </div>
+          <div className="relative">
+            <Progress value={stats.overallPercentage} className="h-4 bg-secondary/30 rounded-full progress-glow" />
           </div>
         </div>
       </div>

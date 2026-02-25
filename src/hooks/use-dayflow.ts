@@ -66,7 +66,6 @@ export function useDayFlow() {
   }, [tasks, initialized]);
 
   const addTask = useCallback((title: string) => {
-    // Defaulting to tomorrow as requested
     const tomorrowStr = getTomorrowString();
     const newTask: Task = {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -121,8 +120,10 @@ export function useDayFlow() {
 
     const overallCompleted = tasks.filter(t => t.status === 'completed').length;
     const overallPending = tasks.filter(t => t.status === 'active').length;
+    const overallTotal = overallCompleted + overallPending;
     
     const percentage = todayTotal > 0 ? Math.round((todayCompleted / todayTotal) * 100) : 0;
+    const overallPercentage = overallTotal > 0 ? Math.round((overallCompleted / overallTotal) * 100) : 0;
 
     return { 
       todayTotal, 
@@ -130,7 +131,8 @@ export function useDayFlow() {
       todayPending, 
       overallCompleted, 
       overallPending, 
-      percentage 
+      percentage,
+      overallPercentage
     };
   }, [tasks, todayString]);
 

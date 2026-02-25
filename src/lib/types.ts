@@ -17,4 +17,5 @@ export interface DayFlowStats {
   overallCompleted: number;
   overallPending: number;
   percentage: number;
+  overallPercentage: number;
 }
