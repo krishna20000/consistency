@@ -46,6 +46,16 @@ export function Dashboard({ stats }: DashboardProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-card/30 border-white/5 overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <BarChart3 size={48} />
+          </div>
+          <CardContent className="p-6">
+            <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-bold mb-1">Total Tasks</p>
+            <h2 className="text-3xl font-bold text-foreground">{stats.overallTotal}</h2>
+          </CardContent>
+        </Card>
+
         <Card className="bg-primary/5 border-primary/10 overflow-hidden relative">
           <div className="absolute top-0 right-0 p-4 opacity-10 text-primary">
             <History size={48} />
@@ -63,16 +73,6 @@ export function Dashboard({ stats }: DashboardProps) {
           <CardContent className="p-6">
             <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-bold mb-1">Total Active Tasks</p>
             <h2 className="text-3xl font-bold text-accent">{stats.overallPending}</h2>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/30 border-white/5 overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <BarChart3 size={48} />
-          </div>
-          <CardContent className="p-6">
-            <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-bold mb-1">Total History</p>
-            <h2 className="text-3xl font-bold text-foreground">{stats.overallTotal}</h2>
           </CardContent>
         </Card>
       </div>
