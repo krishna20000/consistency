@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { AppNav } from '@/components/AppNav';
 import { HeaderDate } from '@/components/HeaderDate';
+import { CurrentYear } from '@/components/CurrentYear';
 import { LayoutGrid } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -36,9 +37,12 @@ export default function RootLayout({
             <AppNav />
           </header>
           {children}
-          <footer className="pt-12 border-t border-white/5 text-center">
+          <footer className="pt-12 border-t border-white/5 text-center space-y-2">
             <p className="text-xs text-muted-foreground/40 font-mono tracking-widest uppercase">
               Consistency Lab // Focused Productivity
+            </p>
+            <p className="text-[10px] text-muted-foreground/30 font-medium uppercase tracking-[0.2em]">
+              By ❤️ Krishna @ <CurrentYear />
             </p>
           </footer>
         </div>
