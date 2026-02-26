@@ -125,7 +125,11 @@ export function Dashboard({ stats }: DashboardProps) {
             <span className="text-2xl font-bold text-accent">{stats.overallPercentage}%</span>
           </div>
           <div className="relative">
-            <Progress value={stats.overallPercentage} className="h-4 bg-secondary/30 rounded-full progress-glow" />
+            <Progress 
+              value={stats.overallPercentage} 
+              className="h-4 bg-secondary/30 rounded-full progress-glow" 
+              indicatorClassName="bg-accent"
+            />
           </div>
         </div>
       </div>
