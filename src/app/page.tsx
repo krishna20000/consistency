@@ -39,9 +39,6 @@ export default function InProgressPage() {
       <section className="space-y-4">
         <h2 className="text-lg font-bold">New Goal</h2>
         <TaskForm onAdd={addTask} />
-        <p className="text-[10px] text-muted-foreground uppercase tracking-widest ml-1">
-          Note: Tasks are automatically scheduled for tomorrow
-        </p>
       </section>
 
       <TaskSection 

@@ -52,13 +52,12 @@ export function useDayFlow() {
   }, [tasks, initialized]);
 
   const addTask = useCallback((title: string) => {
-    const tomorrowStr = format(addDays(new Date(), 1), 'yyyy-MM-dd');
-    const createdStr = format(new Date(), 'yyyy-MM-dd');
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
     
     const newTask: Task = {
       id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       title,
-      dueDate: tomorrowStr,
+      dueDate: todayStr,
       status: 'active',
       forwardedCount: 0,
       createdAt: new Date().toISOString(),
