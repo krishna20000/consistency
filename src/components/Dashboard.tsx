@@ -2,9 +2,8 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { DayFlowStats } from '@/lib/types';
-import { ClipboardList, CheckSquare, Clock, LayoutGrid, History, Zap, BarChart3, Flame } from 'lucide-react';
+import { ClipboardList, CheckSquare, Clock, LayoutGrid, History, BarChart3, Flame } from 'lucide-react';
 
 interface DashboardProps {
   stats: DayFlowStats;
@@ -95,44 +94,6 @@ export function Dashboard({ stats }: DashboardProps) {
           </CardContent>
         </Card>
       )}
-
-      <div className="space-y-6">
-        <div className="bg-card/30 rounded-xl p-6 border border-white/5">
-          <div className="flex justify-between items-end mb-4">
-            <div className="flex items-center gap-2">
-              <Zap className="text-primary" size={18} />
-              <div>
-                <h3 className="text-sm font-bold uppercase tracking-widest">Today's Momentum</h3>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Success rate for today</p>
-              </div>
-            </div>
-            <span className="text-2xl font-bold text-primary">{stats.percentage}%</span>
-          </div>
-          <div className="relative">
-            <Progress value={stats.percentage} className="h-4 bg-secondary/30 rounded-full" />
-          </div>
-        </div>
-
-        <div className="bg-card/30 rounded-xl p-6 border border-white/5">
-          <div className="flex justify-between items-end mb-4">
-            <div className="flex items-center gap-2">
-              <History className="text-accent" size={18} />
-              <div>
-                <h3 className="text-sm font-bold uppercase tracking-widest">Total Momentum</h3>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">All-time success rate</p>
-              </div>
-            </div>
-            <span className="text-2xl font-bold text-accent">{stats.overallPercentage}%</span>
-          </div>
-          <div className="relative">
-            <Progress 
-              value={stats.overallPercentage} 
-              className="h-4 bg-secondary/30 rounded-full progress-glow" 
-              indicatorClassName="bg-accent"
-            />
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
