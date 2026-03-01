@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react';
@@ -29,11 +28,15 @@ export default function CompletedPage() {
     const removedTask = deleteTask(id);
     if (removedTask) {
       toast({
-        title: "Task deleted",
+        title: <span className="text-primary font-bold">Task deleted</span>,
         description: `"${removedTask.title}" has been removed.`,
         action: (
-          <ToastAction altText="Undo" onClick={() => restoreTask(removedTask)}>
-            Undo
+          <ToastAction 
+            altText="Undo" 
+            onClick={() => restoreTask(removedTask)}
+            className="bg-[#00ff00] text-black hover:bg-[#00cc00] border-none font-mono font-bold px-4"
+          >
+            UNDO
           </ToastAction>
         ),
         duration: 5000,
