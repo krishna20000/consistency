@@ -4,8 +4,9 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Task } from '@/lib/types';
-import { Check, ArrowRight, Forward, Trash2, CalendarDays } from 'lucide-react';
+import { Check, ArrowRight, Forward, Trash2, CalendarDays, Timer } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { differenceInCalendarDays, parseISO } from 'date-fns';
 
 interface TaskCardProps {
   task: Task;
@@ -31,11 +32,24 @@ export function TaskCard({ task, onComplete, onForward, onDelete, isToday, showD
     });
   };
 
+  const getDaysTaken = () => {
+    if (!task.completedAt) return null;
+    // Calculate difference in full calendar days
+    const days = differenceInCalendarDays(
+      parseISO(task.completedAt),
+      parseISO(task.createdAt)
+    );
+    // Ensure we don't show negative days in case of clock drift
+    return days < 0 ? 0 : days;
+  };
+
+  const daysTaken = getDaysTaken();
+
   return (
     <Card className={cn(
       "group bg-card/40 border-white/5 transition-all duration-300 hover:bg-card/60",
       isCompleted && "opacity-75 border-accent/20",
-      isToday && !isCompleted && "border-primary/20 glow-primary"
+      isToday && !isCompleted && showDueDate && "border-primary/20 glow-primary"
     )}>
       <CardContent className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex-1 space-y-1.5">
@@ -60,10 +74,16 @@ export function TaskCard({ task, onComplete, onForward, onDelete, isToday, showD
             </span>
 
             {isCompleted ? (
-              <span className="flex items-center gap-1 text-accent">
-                <Check size={12} />
-                Completed at {formatTime(task.completedAt)}
-              </span>
+              <div className="flex flex-wrap items-center gap-4">
+                <span className="flex items-center gap-1 text-accent">
+                  <Check size={12} />
+                  Completed at {formatTime(task.completedAt)}
+                </span>
+                <span className="flex items-center gap-1 text-muted-foreground/60 border-l border-white/10 pl-4">
+                  <Timer size={12} />
+                  Took {daysTaken} {daysTaken === 1 ? 'Day' : 'Days'}
+                </span>
+              </div>
             ) : (
               <>
                 {showDueDate && (
