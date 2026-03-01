@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Task, DayFlowStats } from '@/lib/types';
+import { Task, DayFlowStats, TaskCategory } from '@/lib/types';
 import { format, parseISO, addDays, subDays, isToday, isSameDay } from 'date-fns';
 
-const STORAGE_KEY = 'consistency_lab_tasks_v2';
+const STORAGE_KEY = 'consistency_lab_tasks_v3';
 
 export function useDayFlow() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -19,8 +19,6 @@ export function useDayFlow() {
         const parsedTasks: Task[] = JSON.parse(stored);
         const todayStr = format(new Date(), 'yyyy-MM-dd');
         
-        // Carry forward logic: tasks that were active and due before today 
-        // get moved to today and their forward count increments.
         const updatedTasks = parsedTasks.map(task => {
           if (task.status === 'active' && task.dueDate < todayStr) {
             return {
@@ -46,18 +44,26 @@ export function useDayFlow() {
     }
   }, [tasks, initialized]);
 
-  const addTask = useCallback((title: string) => {
+  const addTask = useCallback((title: string, category: TaskCategory = 'General') => {
     const todayStr = format(new Date(), 'yyyy-MM-dd');
     
     const newTask: Task = {
       id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       title,
+      category,
       dueDate: todayStr,
       status: 'active',
       forwardedCount: 0,
       createdAt: new Date().toISOString(),
     };
     setTasks(prev => [newTask, ...prev]);
+  }, []);
+
+  const restoreTask = useCallback((task: Task) => {
+    setTasks(prev => {
+      if (prev.find(t => t.id === task.id)) return prev;
+      return [task, ...prev];
+    });
   }, []);
 
   const completeTask = useCallback((id: string) => {
@@ -87,8 +93,10 @@ export function useDayFlow() {
   }, []);
 
   const deleteTask = useCallback((id: string) => {
+    const taskToDelete = tasks.find(t => t.id === id);
     setTasks(prev => prev.filter(t => t.id !== id));
-  }, []);
+    return taskToDelete;
+  }, [tasks]);
 
   const stats = useMemo((): DayFlowStats => {
     if (!initialized) {
@@ -103,13 +111,11 @@ export function useDayFlow() {
     const now = new Date();
     const todayStr = format(now, 'yyyy-MM-dd');
 
-    // Today's Done: Completed on the current calendar day
     const todayCompleted = tasks.filter(t => {
       if (t.status !== 'completed' || !t.completedAt) return false;
       return isSameDay(parseISO(t.completedAt), now);
     }).length;
 
-    // Today's Pending: Active tasks created today OR due today or earlier
     const todayPending = tasks.filter(t => {
       if (t.status !== 'active') return false;
       const isCreatedToday = isToday(parseISO(t.createdAt));
@@ -118,19 +124,14 @@ export function useDayFlow() {
     }).length;
 
     const todayTotal = todayCompleted + todayPending;
-
-    // Overall metrics
     const overallCompleted = tasks.filter(t => t.status === 'completed').length;
     const overallPending = tasks.filter(t => t.status === 'active').length;
     const overallTotal = overallCompleted + overallPending;
     
     const percentage = todayTotal > 0 ? Math.round((todayCompleted / todayTotal) * 100) : 0;
     const overallPercentage = overallTotal > 0 ? Math.round((overallCompleted / overallTotal) * 100) : 0;
-
-    // Priority Detection
     const hasPriorityTasks = tasks.some(t => t.status === 'active' && t.forwardedCount > 2);
 
-    // Streak Calculation
     const completedDates = Array.from(new Set(
       tasks
         .filter(t => t.status === 'completed' && t.completedAt)
@@ -140,14 +141,12 @@ export function useDayFlow() {
     let streak = 0;
     if (completedDates.length > 0) {
       const yesterdayStr = format(subDays(now, 1), 'yyyy-MM-dd');
-
       const hasActivityToday = completedDates[0] === todayStr;
       const hasActivityYesterday = completedDates.includes(yesterdayStr);
 
       if (hasActivityToday || hasActivityYesterday) {
         streak = 1;
         let checkDate = hasActivityToday ? now : subDays(now, 1);
-        
         while (true) {
           checkDate = subDays(checkDate, 1);
           const checkDateStr = format(checkDate, 'yyyy-MM-dd');
@@ -161,22 +160,16 @@ export function useDayFlow() {
     }
 
     return { 
-      todayTotal, 
-      todayCompleted, 
-      todayPending, 
-      overallCompleted, 
-      overallPending, 
-      overallTotal,
-      percentage,
-      overallPercentage,
-      streak,
-      hasPriorityTasks
+      todayTotal, todayCompleted, todayPending, 
+      overallCompleted, overallPending, overallTotal,
+      percentage, overallPercentage, streak, hasPriorityTasks
     };
   }, [tasks, initialized]);
 
   return {
     tasks,
     addTask,
+    restoreTask,
     completeTask,
     forwardTask,
     deleteTask,

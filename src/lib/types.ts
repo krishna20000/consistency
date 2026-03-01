@@ -1,10 +1,13 @@
 export type TaskStatus = 'active' | 'completed';
 
+export type TaskCategory = 'Work' | 'Study' | 'Health' | 'Personal' | 'General';
+
 export interface Task {
   id: string;
   title: string;
   dueDate: string; // YYYY-MM-DD
   status: TaskStatus;
+  category: TaskCategory;
   completedAt?: string; // ISO String
   forwardedCount: number;
   createdAt: string; // ISO String
