@@ -88,7 +88,10 @@ export default function TasksPage() {
     let matchesAge = true;
     if (ageFilter !== 'all') {
       const daysSinceCreated = differenceInCalendarDays(new Date(), parseISO(t.createdAt));
-      matchesAge = daysSinceCreated <= Number(ageFilter);
+      
+      if (ageFilter === '0') matchesAge = daysSinceCreated === 0;
+      else if (ageFilter === '1') matchesAge = daysSinceCreated === 1;
+      else if (ageFilter === '2+') matchesAge = daysSinceCreated >= 2;
     }
 
     return matchesSearch && matchesCategory && matchesAge;
@@ -132,13 +135,13 @@ export default function TasksPage() {
           <Clock size={14} className="text-muted-foreground" />
           <Select value={ageFilter} onValueChange={setAgeFilter}>
             <SelectTrigger className="w-full h-10 text-[10px] font-bold uppercase tracking-widest border-white/10 bg-card/20">
-              <SelectValue placeholder="Age Filter" />
+              <SelectValue placeholder="Task Age" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all" className="uppercase text-[10px] font-bold">Any Age</SelectItem>
-              <SelectItem value="1" className="uppercase text-[10px] font-bold">Added Today</SelectItem>
-              <SelectItem value="2" className="uppercase text-[10px] font-bold">Last 2 Days</SelectItem>
-              <SelectItem value="7" className="uppercase text-[10px] font-bold">Last 7 Days</SelectItem>
+              <SelectItem value="0" className="uppercase text-[10px] font-bold">Added Today</SelectItem>
+              <SelectItem value="1" className="uppercase text-[10px] font-bold">Added Yesterday</SelectItem>
+              <SelectItem value="2+" className="uppercase text-[10px] font-bold">2+ Days Ago</SelectItem>
             </SelectContent>
           </Select>
         </div>
