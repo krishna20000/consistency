@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -11,11 +12,11 @@ interface TaskFormProps {
   onAdd: (title: string, category: TaskCategory) => void;
 }
 
-const categories: TaskCategory[] = ['Work', 'Study', 'Health', 'Personal', 'General'];
+const categories: TaskCategory[] = ['Coding', 'DSA', 'Health(Exercise)', 'General'];
 
 export function TaskForm({ onAdd }: TaskFormProps) {
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState<TaskCategory>('General');
+  const [category, setCategory] = useState<TaskCategory>('Coding');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,6 +1,7 @@
+
 export type TaskStatus = 'active' | 'completed';
 
-export type TaskCategory = 'Work' | 'Study' | 'Health' | 'Personal' | 'General';
+export type TaskCategory = 'Coding' | 'DSA' | 'Health(Exercise)' | 'General';
 
 export interface Task {
   id: string;

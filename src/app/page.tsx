@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -9,7 +10,6 @@ import { useDayFlow } from '@/hooks/use-dayflow';
 import { ListTodo, Loader2, AlertTriangle, Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TaskCategory } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 
@@ -92,10 +92,9 @@ export default function InProgressPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all" className="uppercase text-[10px] font-bold">All Categories</SelectItem>
-              <SelectItem value="Work" className="uppercase text-[10px] font-bold">Work</SelectItem>
-              <SelectItem value="Study" className="uppercase text-[10px] font-bold">Study</SelectItem>
-              <SelectItem value="Health" className="uppercase text-[10px] font-bold">Health</SelectItem>
-              <SelectItem value="Personal" className="uppercase text-[10px] font-bold">Personal</SelectItem>
+              <SelectItem value="Coding" className="uppercase text-[10px] font-bold">Coding</SelectItem>
+              <SelectItem value="DSA" className="uppercase text-[10px] font-bold">DSA</SelectItem>
+              <SelectItem value="Health(Exercise)" className="uppercase text-[10px] font-bold">Health(Exercise)</SelectItem>
               <SelectItem value="General" className="uppercase text-[10px] font-bold">General</SelectItem>
             </SelectContent>
           </Select>

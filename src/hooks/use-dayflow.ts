@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -44,7 +45,7 @@ export function useDayFlow() {
     }
   }, [tasks, initialized]);
 
-  const addTask = useCallback((title: string, category: TaskCategory = 'General') => {
+  const addTask = useCallback((title: string, category: TaskCategory = 'Coding') => {
     const todayStr = format(new Date(), 'yyyy-MM-dd');
     
     const newTask: Task = {
