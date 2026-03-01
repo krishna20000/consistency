@@ -20,4 +20,5 @@ export interface DayFlowStats {
   percentage: number;
   overallPercentage: number;
   streak: number;
+  hasPriorityTasks: boolean;
 }

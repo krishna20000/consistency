@@ -95,7 +95,8 @@ export function useDayFlow() {
       return {
         todayTotal: 0, todayCompleted: 0, todayPending: 0,
         overallCompleted: 0, overallPending: 0, overallTotal: 0,
-        percentage: 0, overallPercentage: 0, streak: 0
+        percentage: 0, overallPercentage: 0, streak: 0,
+        hasPriorityTasks: false
       };
     }
 
@@ -125,6 +126,9 @@ export function useDayFlow() {
     
     const percentage = todayTotal > 0 ? Math.round((todayCompleted / todayTotal) * 100) : 0;
     const overallPercentage = overallTotal > 0 ? Math.round((overallCompleted / overallTotal) * 100) : 0;
+
+    // Priority Detection
+    const hasPriorityTasks = tasks.some(t => t.status === 'active' && t.forwardedCount > 2);
 
     // Streak Calculation
     const completedDates = Array.from(new Set(
@@ -165,7 +169,8 @@ export function useDayFlow() {
       overallTotal,
       percentage,
       overallPercentage,
-      streak
+      streak,
+      hasPriorityTasks
     };
   }, [tasks, initialized]);
 
