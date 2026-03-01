@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { DayFlowStats } from '@/lib/types';
 import { ClipboardList, CheckSquare, Clock, LayoutGrid, History, BarChart3, Flame } from 'lucide-react';
 
@@ -74,6 +75,24 @@ export function Dashboard({ stats }: DashboardProps) {
             <h2 className="text-3xl font-bold text-accent">{stats.overallPending}</h2>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="space-y-4 pt-2">
+        <div className="space-y-2">
+          <div className="flex justify-between items-end">
+            <p className="text-[10px] uppercase tracking-[0.2em] font-black text-primary">Today's Momentum</p>
+            <p className="text-sm font-bold text-primary">{stats.percentage}%</p>
+          </div>
+          <Progress value={stats.percentage} className="h-2 bg-white/5" indicatorClassName="progress-glow bg-primary" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between items-end">
+            <p className="text-[10px] uppercase tracking-[0.2em] font-black text-accent">Overall Momentum</p>
+            <p className="text-sm font-bold text-accent">{stats.overallPercentage}%</p>
+          </div>
+          <Progress value={stats.overallPercentage} className="h-2 bg-white/5" indicatorClassName="progress-glow bg-accent" />
+        </div>
       </div>
 
       {stats.streak > 0 && (
