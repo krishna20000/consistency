@@ -2,26 +2,22 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Task, DayFlowStats } from '@/lib/types';
-import { format, startOfDay, parseISO, addDays, subDays } from 'date-fns';
+import { format, parseISO, addDays, subDays, isToday, isSameDay } from 'date-fns';
 
 const STORAGE_KEY = 'consistency_lab_tasks_v2';
 
 export function useDayFlow() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [initialized, setInitialized] = useState(false);
-  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
-    setNow(new Date());
 
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
         const parsedTasks: Task[] = JSON.parse(stored);
-        const currentNow = new Date();
-        const todayStr = format(currentNow, 'yyyy-MM-dd');
+        const todayStr = format(new Date(), 'yyyy-MM-dd');
         
         // Carry forward logic: tasks that were active and due before today 
         // get moved to today and their forward count increments.
@@ -38,7 +34,6 @@ export function useDayFlow() {
 
         setTasks(updatedTasks);
       } catch (e) {
-        console.error("Failed to parse tasks", e);
         setTasks([]);
       }
     }
@@ -96,7 +91,7 @@ export function useDayFlow() {
   }, []);
 
   const stats = useMemo((): DayFlowStats => {
-    if (!initialized || !now) {
+    if (!initialized) {
       return {
         todayTotal: 0, todayCompleted: 0, todayPending: 0,
         overallCompleted: 0, overallPending: 0, overallTotal: 0,
@@ -104,19 +99,19 @@ export function useDayFlow() {
       };
     }
 
+    const now = new Date();
     const todayStr = format(now, 'yyyy-MM-dd');
 
     // Today's Done: Completed on the current calendar day
     const todayCompleted = tasks.filter(t => {
       if (t.status !== 'completed' || !t.completedAt) return false;
-      return format(parseISO(t.completedAt), 'yyyy-MM-dd') === todayStr;
+      return isSameDay(parseISO(t.completedAt), now);
     }).length;
 
     // Today's Pending: Active tasks created today OR due today or earlier
     const todayPending = tasks.filter(t => {
       if (t.status !== 'active') return false;
-      const createdDateStr = format(parseISO(t.createdAt), 'yyyy-MM-dd');
-      const isCreatedToday = createdDateStr === todayStr;
+      const isCreatedToday = isToday(parseISO(t.createdAt));
       const isDueTodayOrOverdue = t.dueDate <= todayStr;
       return isCreatedToday || isDueTodayOrOverdue;
     }).length;
@@ -172,7 +167,7 @@ export function useDayFlow() {
       overallPercentage,
       streak
     };
-  }, [tasks, initialized, now]);
+  }, [tasks, initialized]);
 
   return {
     tasks,
