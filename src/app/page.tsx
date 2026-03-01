@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -11,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
+import { TaskCategory } from '@/lib/types';
 
 export default function InProgressPage() {
   const { 
@@ -27,6 +29,21 @@ export default function InProgressPage() {
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+
+  const handleAddTask = (title: string, category: TaskCategory) => {
+    const newTask = addTask(title, category);
+    if (newTask) {
+      toast({
+        title: <span className="text-primary font-bold uppercase tracking-widest text-xs">Task added</span>,
+        description: (
+          <span className="text-muted-foreground text-xs">
+            "<span className="text-orange-500 font-bold">{newTask.title}</span>" added to lab.
+          </span>
+        ),
+        duration: 2000,
+      });
+    }
+  };
 
   const handleDelete = (id: string) => {
     const removedTask = deleteTask(id);
@@ -78,7 +95,7 @@ export default function InProgressPage() {
 
       <section className="space-y-4">
         <h2 className="text-lg font-bold">New Goal</h2>
-        <TaskForm onAdd={addTask} />
+        <TaskForm onAdd={handleAddTask} />
       </section>
 
       <div className="flex flex-col md:flex-row items-center gap-3 bg-card/20 p-4 rounded-xl border border-white/5">

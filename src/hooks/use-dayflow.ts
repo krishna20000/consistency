@@ -58,6 +58,7 @@ export function useDayFlow() {
       createdAt: new Date().toISOString(),
     };
     setTasks(prev => [newTask, ...prev]);
+    return newTask;
   }, []);
 
   const restoreTask = useCallback((task: Task) => {
