@@ -4,6 +4,7 @@ import { AppNav } from '@/components/AppNav';
 import { HeaderDate } from '@/components/HeaderDate';
 import { CurrentYear } from '@/components/CurrentYear';
 import { LayoutGrid } from 'lucide-react';
+import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
   title: 'Consistency Lab | Minimal Productivity Tracker',
@@ -46,6 +47,7 @@ export default function RootLayout({
             </p>
           </footer>
         </div>
+        <Toaster />
       </body>
     </html>
   );
