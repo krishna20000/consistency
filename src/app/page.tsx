@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Dashboard } from '@/components/Dashboard';
 import { TaskCard } from '@/components/TaskCard';
 import { TaskSection } from '@/components/TaskSection';
+import { ProductivityInsight } from '@/components/ProductivityInsight';
 import { useDayFlow } from '@/hooks/use-dayflow';
 import { AlertTriangle, Loader2, Settings2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -64,6 +65,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-10">
       <Dashboard stats={stats} />
+
+      <ProductivityInsight stats={stats} tasks={tasks} />
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">
