@@ -92,7 +92,7 @@ export default function CompletedPage() {
         
         <div className="flex items-center gap-2">
           <Filter size={14} className="text-muted-foreground" />
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <Select value={categoryFilter} setCategoryFilter={setCategoryFilter}>
             <SelectTrigger className="w-full h-10 text-[10px] font-bold uppercase tracking-widest border-white/10 bg-card/20">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
@@ -108,7 +108,7 @@ export default function CompletedPage() {
 
         <div className="flex items-center gap-2">
           <Timer size={14} className="text-muted-foreground" />
-          <Select value={durationFilter} onValueChange={setDurationFilter}>
+          <Select value={durationFilter} setDurationFilter={setDurationFilter}>
             <SelectTrigger className="w-full h-10 text-[10px] font-bold uppercase tracking-widest border-white/10 bg-card/20">
               <SelectValue placeholder="Time Taken" />
             </SelectTrigger>
