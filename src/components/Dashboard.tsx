@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { DayFlowStats } from '@/lib/types';
-import { ClipboardList, CheckSquare, Clock, LayoutGrid, History, BarChart3, Flame } from 'lucide-react';
+import { ClipboardList, CheckSquare, Clock, LayoutGrid, History, BarChart3, Flame, Activity, Globe } from 'lucide-react';
 
 interface DashboardProps {
   stats: DayFlowStats;
@@ -77,21 +77,49 @@ export function Dashboard({ stats }: DashboardProps) {
         </Card>
       </div>
 
-      <div className="space-y-4 pt-2">
-        <div className="space-y-2">
-          <div className="flex justify-between items-end">
-            <p className="text-[10px] uppercase tracking-[0.2em] font-black text-primary">Today's Momentum</p>
-            <p className="text-sm font-bold text-primary">{stats.percentage}%</p>
+      <div className="momentum-container space-y-8 bg-card/20 border border-white/5 p-6 rounded-xl">
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-md bg-primary/10">
+                <Activity size={14} className="text-primary" />
+              </div>
+              <p className="text-[10px] uppercase tracking-[0.25em] font-black text-primary/80">Daily Momentum</p>
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-black text-primary tracking-tighter">{stats.percentage}</span>
+              <span className="text-[10px] font-bold text-primary/50 uppercase">%</span>
+            </div>
           </div>
-          <Progress value={stats.percentage} className="h-2 bg-white/5" indicatorClassName="progress-glow bg-primary" />
+          <div className="relative pt-1">
+            <Progress 
+              value={stats.percentage} 
+              className="h-3 bg-white/5 rounded-full overflow-hidden" 
+              indicatorClassName="progress-glow-primary bg-primary transition-all duration-1000 ease-in-out" 
+            />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <div className="flex justify-between items-end">
-            <p className="text-[10px] uppercase tracking-[0.2em] font-black text-accent">Overall Momentum</p>
-            <p className="text-sm font-bold text-accent">{stats.overallPercentage}%</p>
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-md bg-accent/10">
+                <Globe size={14} className="text-accent" />
+              </div>
+              <p className="text-[10px] uppercase tracking-[0.25em] font-black text-accent/80">Lifetime Momentum</p>
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-black text-accent tracking-tighter">{stats.overallPercentage}</span>
+              <span className="text-[10px] font-bold text-accent/50 uppercase">%</span>
+            </div>
           </div>
-          <Progress value={stats.overallPercentage} className="h-2 bg-white/5" indicatorClassName="progress-glow bg-accent" />
+          <div className="relative pt-1">
+            <Progress 
+              value={stats.overallPercentage} 
+              className="h-3 bg-white/5 rounded-full overflow-hidden" 
+              indicatorClassName="progress-glow-accent bg-accent transition-all duration-1000 ease-in-out" 
+            />
+          </div>
         </div>
       </div>
 
