@@ -32,8 +32,12 @@ export default function InProgressPage() {
     const removedTask = deleteTask(id);
     if (removedTask) {
       toast({
-        title: <span className="text-primary font-bold">Task deleted</span>,
-        description: `"${removedTask.title}" has been removed.`,
+        title: <span className="text-orange-500 font-bold uppercase tracking-widest text-xs">Task deleted</span>,
+        description: (
+          <span className="text-muted-foreground text-xs">
+            "<span className="text-orange-400 font-bold">{removedTask.title}</span>" removed from lab.
+          </span>
+        ),
         action: (
           <ToastAction 
             altText="Undo" 
