@@ -27,7 +27,7 @@ export default function TasksPage() {
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [daysFilter, setDaysFilter] = useState<string>('all');
+  const [ageFilter, setAgeFilter] = useState<string>('all');
 
   const handleAddTask = (title: string, category: TaskCategory) => {
     const newTask = addTask(title, category);
@@ -85,13 +85,13 @@ export default function TasksPage() {
     const matchesSearch = t.title.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || t.category === categoryFilter;
     
-    let matchesDays = true;
-    if (daysFilter !== 'all') {
+    let matchesAge = true;
+    if (ageFilter !== 'all') {
       const daysSinceCreated = differenceInCalendarDays(new Date(), parseISO(t.createdAt));
-      matchesDays = daysSinceCreated <= Number(daysFilter);
+      matchesAge = daysSinceCreated <= Number(ageFilter);
     }
 
-    return matchesSearch && matchesCategory && matchesDays;
+    return matchesSearch && matchesCategory && matchesAge;
   });
 
   return (
@@ -130,7 +130,7 @@ export default function TasksPage() {
 
         <div className="flex items-center gap-2">
           <Clock size={14} className="text-muted-foreground" />
-          <Select value={daysFilter} onValueChange={setDaysFilter}>
+          <Select value={ageFilter} onValueChange={setAgeFilter}>
             <SelectTrigger className="w-full h-10 text-[10px] font-bold uppercase tracking-widest border-white/10 bg-card/20">
               <SelectValue placeholder="Age Filter" />
             </SelectTrigger>
@@ -163,7 +163,7 @@ export default function TasksPage() {
         ) : (
           <div className="text-center py-20 border-2 border-dashed border-white/5 rounded-xl bg-white/5">
             <p className="text-muted-foreground italic text-sm">
-              {search || categoryFilter !== 'all' || daysFilter !== 'all' ? "No tasks match your filters." : "Your workspace is clear. Ready to add a new goal?"}
+              {search || categoryFilter !== 'all' || ageFilter !== 'all' ? "No tasks match your filters." : "Your workspace is clear. Ready to add a new goal?"}
             </p>
           </div>
         )}

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { TaskCard } from '@/components/TaskCard';
 import { TaskSection } from '@/components/TaskSection';
 import { useDayFlow } from '@/hooks/use-dayflow';
-import { CheckCircle2, Loader2, Search, Filter, Calendar } from 'lucide-react';
+import { CheckCircle2, Loader2, Search, Filter, Timer } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +22,7 @@ export default function CompletedPage() {
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [daysFilter, setDaysFilter] = useState<string>('all');
+  const [durationFilter, setDurationFilter] = useState<string>('all');
 
   const handleDelete = (id: string) => {
     const removedTask = deleteTask(id);
@@ -65,13 +65,16 @@ export default function CompletedPage() {
     const matchesSearch = t.title.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || t.category === categoryFilter;
     
-    let matchesDays = true;
-    if (daysFilter !== 'all' && t.completedAt) {
-      const daysSinceCompleted = differenceInCalendarDays(new Date(), parseISO(t.completedAt));
-      matchesDays = daysSinceCompleted <= Number(daysFilter);
+    let matchesDuration = true;
+    if (durationFilter !== 'all' && t.completedAt) {
+      const daysTaken = differenceInCalendarDays(parseISO(t.completedAt), parseISO(t.createdAt));
+      
+      if (durationFilter === '0') matchesDuration = daysTaken === 0;
+      else if (durationFilter === '1') matchesDuration = daysTaken === 1;
+      else if (durationFilter === '2+') matchesDuration = daysTaken >= 2;
     }
 
-    return matchesSearch && matchesCategory && matchesDays;
+    return matchesSearch && matchesCategory && matchesDuration;
   });
 
   return (
@@ -104,16 +107,16 @@ export default function CompletedPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Calendar size={14} className="text-muted-foreground" />
-          <Select value={daysFilter} onValueChange={setDaysFilter}>
+          <Timer size={14} className="text-muted-foreground" />
+          <Select value={durationFilter} onValueChange={setDurationFilter}>
             <SelectTrigger className="w-full h-10 text-[10px] font-bold uppercase tracking-widest border-white/10 bg-card/20">
-              <SelectValue placeholder="Done Filter" />
+              <SelectValue placeholder="Time Taken" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all" className="uppercase text-[10px] font-bold">All Time</SelectItem>
-              <SelectItem value="1" className="uppercase text-[10px] font-bold">Today</SelectItem>
-              <SelectItem value="7" className="uppercase text-[10px] font-bold">Last 7 Days</SelectItem>
-              <SelectItem value="30" className="uppercase text-[10px] font-bold">Last 30 Days</SelectItem>
+              <SelectItem value="all" className="uppercase text-[10px] font-bold">Any Duration</SelectItem>
+              <SelectItem value="0" className="uppercase text-[10px] font-bold">Took 0 Days</SelectItem>
+              <SelectItem value="1" className="uppercase text-[10px] font-bold">Took 1 Day</SelectItem>
+              <SelectItem value="2+" className="uppercase text-[10px] font-bold">Took 2+ Days</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -135,7 +138,7 @@ export default function CompletedPage() {
         ) : (
           <div className="text-center py-20 border-2 border-dashed border-white/5 rounded-xl bg-white/5">
             <p className="text-muted-foreground text-sm italic">
-              {search || categoryFilter !== 'all' || daysFilter !== 'all' ? "No completed tasks match your search." : "Your achievement wall is currently empty."}
+              {search || categoryFilter !== 'all' || durationFilter !== 'all' ? "No completed tasks match your search." : "Your achievement wall is currently empty."}
             </p>
           </div>
         )}
