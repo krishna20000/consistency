@@ -28,10 +28,10 @@ export default function CompletedPage() {
     const removedTask = deleteTask(id);
     if (removedTask) {
       toast({
-        title: <span className="text-orange-500 font-bold uppercase tracking-widest text-xs">Task deleted</span>,
+        title: <span className="text-blue-500 font-bold uppercase tracking-widest text-xs">Task deleted</span>,
         description: (
           <span className="text-muted-foreground text-xs">
-            "<span className="text-orange-400 font-bold">{removedTask.title}</span>" removed from history.
+            "<span className="text-orange-500 font-bold">{removedTask.title}</span>" removed from history.
           </span>
         ),
         action: (
