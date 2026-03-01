@@ -6,7 +6,7 @@ import { TaskForm } from '@/components/TaskForm';
 import { TaskCard } from '@/components/TaskCard';
 import { TaskSection } from '@/components/TaskSection';
 import { useDayFlow } from '@/hooks/use-dayflow';
-import { ListTodo, Loader2 } from 'lucide-react';
+import { ListTodo, Loader2, AlertTriangle } from 'lucide-react';
 
 export default function InProgressPage() {
   const { 
@@ -30,7 +30,9 @@ export default function InProgressPage() {
     );
   }
 
-  const inProgressTasks = tasks.filter(t => t.status === 'active');
+  const activeTasks = tasks.filter(t => t.status === 'active');
+  const priorityTasks = activeTasks.filter(t => t.forwardedCount > 2);
+  const regularTasks = activeTasks.filter(t => t.forwardedCount <= 2);
 
   return (
     <div className="space-y-10">
@@ -41,13 +43,32 @@ export default function InProgressPage() {
         <TaskForm onAdd={addTask} />
       </section>
 
+      {priorityTasks.length > 0 && (
+        <TaskSection 
+          title="Priority Tasks" 
+          icon={AlertTriangle} 
+          count={priorityTasks.length}
+        >
+          {priorityTasks.map(task => (
+            <TaskCard 
+              key={task.id} 
+              task={task} 
+              onComplete={completeTask} 
+              onForward={forwardTask} 
+              onDelete={deleteTask}
+              showDueDate={false}
+            />
+          ))}
+        </TaskSection>
+      )}
+
       <TaskSection 
-        title="Active Tasks" 
+        title="Today's Tasks" 
         icon={ListTodo} 
-        count={inProgressTasks.length}
+        count={regularTasks.length}
       >
-        {inProgressTasks.length > 0 ? (
-          inProgressTasks.map(task => (
+        {regularTasks.length > 0 ? (
+          regularTasks.map(task => (
             <TaskCard 
               key={task.id} 
               task={task} 

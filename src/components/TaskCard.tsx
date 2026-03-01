@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Task } from '@/lib/types';
-import { Check, ArrowRight, Forward, Trash2, CalendarDays, Timer } from 'lucide-react';
+import { Check, ArrowRight, Forward, Trash2, CalendarDays, Timer, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
 
@@ -19,6 +19,7 @@ interface TaskCardProps {
 
 export function TaskCard({ task, onComplete, onForward, onDelete, isToday, showDueDate = true }: TaskCardProps) {
   const isCompleted = task.status === 'completed';
+  const isPriority = !isCompleted && task.forwardedCount > 2;
   
   const formatTime = (isoString?: string) => {
     if (!isoString) return '';
@@ -34,12 +35,10 @@ export function TaskCard({ task, onComplete, onForward, onDelete, isToday, showD
 
   const getDaysTaken = () => {
     if (!task.completedAt) return null;
-    // Calculate difference in full calendar days
     const days = differenceInCalendarDays(
       parseISO(task.completedAt),
       parseISO(task.createdAt)
     );
-    // Ensure we don't show negative days in case of clock drift
     return days < 0 ? 0 : days;
   };
 
@@ -49,19 +48,25 @@ export function TaskCard({ task, onComplete, onForward, onDelete, isToday, showD
     <Card className={cn(
       "group bg-card/40 border-white/5 transition-all duration-300 hover:bg-card/60",
       isCompleted && "opacity-75 border-accent/20",
-      isToday && !isCompleted && showDueDate && "border-primary/20 glow-primary"
+      isPriority && "border-destructive/50 bg-destructive/5 shadow-[0_0_15px_-5px_rgba(239,68,68,0.3)]",
+      isToday && !isCompleted && !isPriority && showDueDate && "border-primary/20 glow-primary"
     )}>
       <CardContent className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex-1 space-y-1.5">
           <div className="flex items-center gap-2">
+            {isPriority && <AlertCircle size={16} className="text-destructive animate-pulse" />}
             <h4 className={cn(
               "text-lg font-medium tracking-tight break-words",
-              isCompleted && "line-through text-muted-foreground"
+              isCompleted && "line-through text-muted-foreground",
+              isPriority && "text-destructive font-bold"
             )}>
               {task.title}
             </h4>
             {isToday && !isCompleted && showDueDate && (
-              <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">
+              <span className={cn(
+                "text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter",
+                isPriority ? "bg-destructive text-destructive-foreground" : "bg-primary/20 text-primary"
+              )}>
                 Today
               </span>
             )}
@@ -92,7 +97,10 @@ export function TaskCard({ task, onComplete, onForward, onDelete, isToday, showD
                   </span>
                 )}
                 {task.forwardedCount > 0 && (
-                  <span className="flex items-center gap-1 text-primary/70">
+                  <span className={cn(
+                    "flex items-center gap-1",
+                    isPriority ? "text-destructive" : "text-primary/70"
+                  )}>
                     <Forward size={12} />
                     Forwarded {task.forwardedCount}x
                   </span>
@@ -108,7 +116,12 @@ export function TaskCard({ task, onComplete, onForward, onDelete, isToday, showD
               <Button 
                 size="sm" 
                 variant="outline" 
-                className="border-accent/30 text-accent hover:bg-accent hover:text-accent-foreground gap-1.5 h-8"
+                className={cn(
+                  "gap-1.5 h-8",
+                  isPriority 
+                    ? "border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground" 
+                    : "border-accent/30 text-accent hover:bg-accent hover:text-accent-foreground"
+                )}
                 onClick={() => onComplete?.(task.id)}
               >
                 <Check size={14} />
