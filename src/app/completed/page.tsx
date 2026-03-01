@@ -43,7 +43,7 @@ export default function CompletedPage() {
             UNDO
           </ToastAction>
         ),
-        duration: 8000,
+        duration: 5000,
       });
     }
   };
