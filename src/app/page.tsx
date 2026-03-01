@@ -47,7 +47,7 @@ export default function InProgressPage() {
             UNDO
           </ToastAction>
         ),
-        duration: 5000,
+        duration: 8000,
       });
     }
   };
