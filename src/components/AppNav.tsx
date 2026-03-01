@@ -10,7 +10,8 @@ export function AppNav() {
   const pathname = usePathname();
 
   const links = [
-    { href: '/', label: 'In Progress', icon: ListTodo },
+    { href: '/', label: 'Dashboard', icon: LayoutGrid },
+    { href: '/tasks', label: 'Tasks', icon: ListTodo },
     { href: '/completed', label: 'Completed', icon: CheckCircle2 },
   ];
 
@@ -25,14 +26,14 @@ export function AppNav() {
             key={link.href}
             href={link.href}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-bold uppercase tracking-widest transition-all",
+              "flex items-center gap-2 px-3 md:px-4 py-2 rounded-md text-[10px] md:text-sm font-bold uppercase tracking-widest transition-all",
               isActive 
                 ? "bg-primary text-primary-foreground shadow-lg" 
                 : "text-muted-foreground hover:text-foreground hover:bg-white/5"
             )}
           >
             <Icon size={16} />
-            <span>{link.label}</span>
+            <span className="hidden sm:inline">{link.label}</span>
           </Link>
         );
       })}

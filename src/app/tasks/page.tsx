@@ -1,21 +1,26 @@
 "use client"
 
 import React, { useState } from 'react';
+import { TaskForm } from '@/components/TaskForm';
 import { TaskCard } from '@/components/TaskCard';
 import { TaskSection } from '@/components/TaskSection';
 import { useDayFlow } from '@/hooks/use-dayflow';
-import { CheckCircle2, Loader2, Search, Filter, Calendar } from 'lucide-react';
+import { ListTodo, Search, Filter, Clock, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
+import { TaskCategory } from '@/lib/types';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
 
-export default function CompletedPage() {
+export default function TasksPage() {
   const { 
     tasks, 
-    deleteTask, 
+    addTask, 
     restoreTask,
+    completeTask, 
+    forwardTask, 
+    deleteTask, 
     initialized 
   } = useDayFlow();
 
@@ -24,6 +29,21 @@ export default function CompletedPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [daysFilter, setDaysFilter] = useState<string>('all');
 
+  const handleAddTask = (title: string, category: TaskCategory) => {
+    const newTask = addTask(title, category);
+    if (newTask) {
+      toast({
+        title: <span className="text-primary font-bold uppercase tracking-widest text-xs">Task added</span>,
+        description: (
+          <span className="text-muted-foreground text-xs">
+            "<span className="text-orange-500 font-bold">{newTask.title}</span>" added to lab.
+          </span>
+        ),
+        duration: 2000,
+      });
+    }
+  };
+
   const handleDelete = (id: string) => {
     const removedTask = deleteTask(id);
     if (removedTask) {
@@ -31,7 +51,7 @@ export default function CompletedPage() {
         title: <span className="text-blue-500 font-bold uppercase tracking-widest text-xs">Task deleted</span>,
         description: (
           <span className="text-muted-foreground text-xs">
-            "<span className="text-orange-500 font-bold">{removedTask.title}</span>" removed from history.
+            "<span className="text-orange-500 font-bold">{removedTask.title}</span>" removed from lab.
           </span>
         ),
         action: (
@@ -53,22 +73,22 @@ export default function CompletedPage() {
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 className="animate-spin text-primary" size={32} />
         <div className="text-primary font-bold tracking-widest uppercase text-sm">
-          Loading History...
+          Loading Tasks...
         </div>
       </div>
     );
   }
 
-  const completedTasks = tasks.filter(t => {
-    if (t.status !== 'completed') return false;
-
+  const activeTasks = tasks.filter(t => {
+    if (t.status !== 'active') return false;
+    
     const matchesSearch = t.title.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || t.category === categoryFilter;
     
     let matchesDays = true;
-    if (daysFilter !== 'all' && t.completedAt) {
-      const daysSinceCompleted = differenceInCalendarDays(new Date(), parseISO(t.completedAt));
-      matchesDays = daysSinceCompleted <= Number(daysFilter);
+    if (daysFilter !== 'all') {
+      const daysSinceCreated = differenceInCalendarDays(new Date(), parseISO(t.createdAt));
+      matchesDays = daysSinceCreated <= Number(daysFilter);
     }
 
     return matchesSearch && matchesCategory && matchesDays;
@@ -76,11 +96,16 @@ export default function CompletedPage() {
 
   return (
     <div className="space-y-10">
+      <section className="space-y-4">
+        <h2 className="text-lg font-bold uppercase tracking-tight">Add New Goal</h2>
+        <TaskForm onAdd={handleAddTask} />
+      </section>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="relative col-span-1 md:col-span-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
           <Input 
-            placeholder="Search history..." 
+            placeholder="Search active tasks..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 h-10 text-xs bg-card/20 border-white/10"
@@ -104,38 +129,41 @@ export default function CompletedPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Calendar size={14} className="text-muted-foreground" />
+          <Clock size={14} className="text-muted-foreground" />
           <Select value={daysFilter} onValueChange={setDaysFilter}>
             <SelectTrigger className="w-full h-10 text-[10px] font-bold uppercase tracking-widest border-white/10 bg-card/20">
-              <SelectValue placeholder="Done Filter" />
+              <SelectValue placeholder="Age Filter" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all" className="uppercase text-[10px] font-bold">All Time</SelectItem>
-              <SelectItem value="1" className="uppercase text-[10px] font-bold">Today</SelectItem>
+              <SelectItem value="all" className="uppercase text-[10px] font-bold">Any Age</SelectItem>
+              <SelectItem value="1" className="uppercase text-[10px] font-bold">Added Today</SelectItem>
+              <SelectItem value="2" className="uppercase text-[10px] font-bold">Last 2 Days</SelectItem>
               <SelectItem value="7" className="uppercase text-[10px] font-bold">Last 7 Days</SelectItem>
-              <SelectItem value="30" className="uppercase text-[10px] font-bold">Last 30 Days</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       <TaskSection 
-        title="Achievement History" 
-        icon={CheckCircle2} 
-        count={completedTasks.length}
+        title="Active Workspace" 
+        icon={ListTodo} 
+        count={activeTasks.length}
       >
-        {completedTasks.length > 0 ? (
-          completedTasks.map(task => (
+        {activeTasks.length > 0 ? (
+          activeTasks.map(task => (
             <TaskCard 
               key={task.id} 
               task={task} 
+              onComplete={completeTask} 
+              onForward={forwardTask} 
               onDelete={handleDelete}
+              showDueDate={true}
             />
           ))
         ) : (
           <div className="text-center py-20 border-2 border-dashed border-white/5 rounded-xl bg-white/5">
-            <p className="text-muted-foreground text-sm italic">
-              {search || categoryFilter !== 'all' || daysFilter !== 'all' ? "No completed tasks match your search." : "Your achievement wall is currently empty."}
+            <p className="text-muted-foreground italic text-sm">
+              {search || categoryFilter !== 'all' || daysFilter !== 'all' ? "No tasks match your filters." : "Your workspace is clear. Ready to add a new goal?"}
             </p>
           </div>
         )}
